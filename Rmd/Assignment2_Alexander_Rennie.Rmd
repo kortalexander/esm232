@@ -1,0 +1,34 @@
+---
+title: "Assignment 2"
+author: "Kort Alexander, Zoe Rennie"
+date: "2023-04-20"
+output: 
+  html_document:
+    theme: darkly
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(dplyr.summarise.inform = FALSE)
+library(here)
+library(dplyr)
+library(knitr)
+```
+
+## Conceptual Model
+
+<iframe src="https://drive.google.com/file/d/1yNkdOHJGaaHT1j0xpMQNbiRYZeEQt5rE/preview" width="640" height="480" allow="autoplay"></iframe>
+
+## Climate Data Function
+
+Below is implementation of the function almond_yield to obtain the minimum, maximum, and mean almond yield anomalies.
+
+```{r}
+# source almond_yield function
+source(here("R", "almond_yield.R"))
+
+#test function
+clim_data <- as.data.frame(read.table(here("data","clim.txt"), header=T))
+almond_yield(clim_data)
+```
