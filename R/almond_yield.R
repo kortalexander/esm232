@@ -8,7 +8,7 @@ almond_yield <- function(clim_data) {
   # process climate data into monthly averages
   clim_monthly <- clim_data %>% 
     group_by(year, month) %>% 
-    summarize(tmax = mean(tmax_c), tmin = mean(tmin_c), total_precip = sum(precip))
+    summarize(tmax = mean(tmax_c), tmin = min(tmin_c), total_precip = sum(precip))
   
   # get years of interest and loop through them
   years = unique(clim_monthly$year)
