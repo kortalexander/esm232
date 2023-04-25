@@ -12,6 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 options(dplyr.summarise.inform = FALSE)
 library(here)
+library(tidyverse)
 library(dplyr)
 library(knitr)
 ```
@@ -32,3 +33,21 @@ source(here("R", "almond_yield.R"))
 clim_data <- as.data.frame(read.table(here("data","clim.txt"), header=T))
 almond_yield(clim_data)
 ```
+
+## Sensitivity Analysis
+
+```{r}
+Tmincoeff1_range <- runif(n = 10, min = -1, max = 1)
+
+sens_results <- Tmincoeff1_range %>% map(~almond_yield(clim_data, Tmincoeff1 = .x))
+
+Pcoeff1_range <- runif(n = 10, min = -1, max = 1)
+sens_results2 <- Pcoeff1_range %>% map(~almond_yield(clim_data, Pcoeff1 = .x))
+
+df <- as.data.frame(do.call(rbind, sens_results2))
+df <- df %>% mutate(Pcoeff1 = Pcoeff1_range)
+
+ggplot(df, aes(x = Pcoeff1, y = mean_yield_anomaly)) +
+  geom_point()
+```
+
