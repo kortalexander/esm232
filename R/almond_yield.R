@@ -33,5 +33,5 @@ almond_yield <- function(clim_data, Tmincoeff1 = -0.015, Tmincoeff2 = -0.0046, P
   
   # unlist anomalies and return max, min, and mean
   yield_anomalies <- unlist(yield_anomalies)
-  return(list(max_yield_anomaly = max(yield_anomalies), min_yield_anomaly = min(yield_anomalies), mean_yield_anomaly = mean(yield_anomalies)))
+  return(yield_anomalies)
 }
