@@ -39,15 +39,15 @@ params = cbind.data.frame(baseline_yield, price_per_ton)
 results = params %>% pmap(compute_profit, yield_anomalies=almond_yield(clim_data), acres = 100)
 
 #add parameters from each run to profit
-profit <- map_df(results,`[`, c("profit"))
+profit <- map_df(results,`[`, c("mean_profit"))
 profit_params <- cbind.data.frame(profit, params)
 
 #graph results
-p1 = ggplot(profit_params, aes(baseline_yield, profit, col=price_per_ton))+geom_point(cex=2)+
+p1 = ggplot(profit_params, aes(baseline_yield, mean_profit, col=price_per_ton))+geom_point(cex=2)+
   labs(y="Profit ($)", x="Baseline Yield (tons/acre) \n above which total yield is more profitable") #not sure about this labeling was just replicating the example
 
-p2 = ggplot(profit_params, aes(price_per_ton, profit, col=baseline_yield))+geom_point(cex=2)+
-  labs(y="Profit ($)", x="Price per ton")
+p2 = ggplot(profit_params, aes(price_per_ton, mean_profit, col=baseline_yield))+geom_point(cex=2)+
+  labs(y="Profit ($)", x="Price per ton ($)")
 ggarrange(p1,p2)
 
 ```

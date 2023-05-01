@@ -8,5 +8,5 @@
 
 compute_profit <- function(yield_anomalies, baseline_yield = 1, price_per_ton = 3000, acres = 100) {
   profit <- (baseline_yield + yield_anomalies) * acres * price_per_ton
-  return(profit)
+  return(list(mean_profit = mean(profit)))
 }
