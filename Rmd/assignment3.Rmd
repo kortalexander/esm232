@@ -37,7 +37,7 @@ profit <- map_df(results,`[`, c("profit"))
 profit_params <- cbind.data.frame(profit, params)
 #graph results
 p1 = ggplot(profit_params, aes(baseline_yield, profit, col=price_per_ton))+geom_point(cex=2)+
-  labs(y="Profit ($)", x="Baseline Yield (tons/acre) \n above which total yield is more profitable") #not sure about this labeling was just replicating the example
+  labs(y="Profit ($)", x="Baseline Yield (tons/acre)")
 p2 = ggplot(profit_params, aes(price_per_ton, profit, col=baseline_yield))+geom_point(cex=2)+
   labs(y="Profit ($)", x="Price per ton ($)")
 ggarrange(p1,p2)
