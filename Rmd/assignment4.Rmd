@@ -7,24 +7,32 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+library(sensitivity)
+library(lhs)
 ```
 
-## R Markdown
+```{r}
+# source conductance function
+source(here("R", "Catm.R"))
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# set parameters
+pnames <- c("height", "k_d", "k_0", "v")
+npar <- length(pnames)
+nsample <- 100
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+parm_quant <- randomLHS(nsample, npar)
+colnames(parm_quant) <- pnames
 
-```{r cars}
-summary(cars)
+parm = as.data.frame(matrix(nrow=nrow(parm_quant), ncol=ncol(parm_quant)))
+colnames(parm) = pnames
+
+percent_k_d_0 <- 0.01
+parm[,"height"] = qunif(parm_quant[,"height"], min = 9.5, max = 10.5)
+parm[,"k_d"] = qnorm(parm_quant[, "k_d"], mean = 0.7, sd = 0.7 * percent_k_d_0)
+parm[,"k_0"] = qnorm(parm_quant[, "k_0"], mean = 0.1, sd = 0.1 * percent_k_d_0)
+parm[, "v"] = qnorm(parm_quant[, "v"], mean = 250, sd = 30)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
