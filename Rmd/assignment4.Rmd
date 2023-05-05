@@ -45,32 +45,42 @@ results_df <- as.data.frame(do.call(rbind, results)) %>%
   rename(conductance = V1) %>% 
   cbind(parm) # add parameter values
 
+# make boxplot showing range of conductance values accounting for parameter uncertainty
+ggplot(results_df, aes(y = conductance)) +
+  geom_boxplot() +
+  labs(y = "Atmospheric conductance (mm/s)") +
+  theme(legend.position = "none", 
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
 # tidy version for graphing
-results_long <- results_df %>%  
+results_long <- results_df %>%
   gather(v, height, k_o, k_d, key = "parameter", value = "value")
 
 # labels for facet wrap
-parm_labs <- c("height", "plane displacement", "roughness", "windspeed")
+parm_labs <- c("height", "plane displacement scalar", "roughness scalar", "windspeed")
 names(parm_labs)  <- c("height", "k_d", "k_o", "v")
-
-# Plot conductance estimates in a way that accounts for parameter uncertainty
-ggplot(results_long, aes(y = conductance, x=value, fill = parameter))+
-  geom_boxplot()+
-  labs(x="Atmospheric Conductance", y = "Parameter value") +
-  facet_wrap(~parameter, scales="free",ncol=4, labeller = labeller(parameter = parm_labs)) +
-  scale_fill_discrete(name = "parameter", labels = c("height", "zero plane displacement", "roughness", "windspeed")) +
-  theme(legend.position = "none", 
-        axis.text.x=element_blank(),
-      axis.ticks.x=element_blank())
 ```
 
-Figure 1. Boxplot of model sensitivity for parameter variations. uncertainty on atmospheric conductance. Vegetation height (height) has the greatest uncertainty and therefore biggest effect on atmoshpheric conductance.
+Figure 1. Boxplot of atmospheric conductance accounting for parameter uncertainty.
 
 
 ```{r}
-# Plot conductance estimates against each of your parameters
-
-
-# Estimate the Partial Rank Correlation Coefficients
+# make scatterplots showing conductance values vs each parameter
+ggplot(results_long, aes(y = conductance, x = value, color = parameter)) +
+  geom_point() +
+  facet_wrap(~parameter, scales = "free", labeller = labeller(parameter = parm_labs)) +
+  labs(x = "Parameter value", y = "Atmospheric conductance (mm/s)") +
+  theme(legend.position = "none")
 ```
 
+Figure 2. Plots of atmospheric conductance vs each parameter. Uncertainty in windspeed has the greatest effect on variance in conductance.
+
+```{r}
+# calculate partial rank correlation coefficients for each parameter
+corr_coeffs = pcc(parm, results_df$conductance)
+corr_coeffs
+```
+
+# Conclusion
+Our results suggest the variance in aerodynamic conductance is most affected by uncertainty in wind speed, but uncertainty in vegetation height and roughness also have a large effect. To reduce uncertainty in conductance estimates, you should reduce uncertainty in wind speed, vegetation height, and roughness. Because plant water use is related to aerodynamic conductance, plant water use could be affected by climate change if wind speed changes significantly as a result.
