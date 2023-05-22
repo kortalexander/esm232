@@ -13,4 +13,6 @@ dgrowth <- function(time, C, parms) {
     dC <- parms$r * C
   else
     dC <- parms$g * (1 - C / parms$K)
+  
+  return(list(dC))
 }

@@ -7,5 +7,28 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+library(sensitivity)
+library(deSolve)
+```
+
+```{r}
+# source function
+source(here("R", "dgrowth.R"))
+
+# set initial parameters and starting C
+parms <- list(r = 0.01, K = 250, closer = 50, g = 2)
+initial_C <- 10
+time <- 1:300
+
+# run ODE
+results <- ode(y = initial_C, times = time, func = dgrowth, parms = parms)
+results_df <- as.data.frame(results)
+
+# plot
+ggplot(results_df, aes(x = time, y = )) +
+  geom_line()
 ```
 
