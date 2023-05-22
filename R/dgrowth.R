@@ -3,7 +3,7 @@
 #' @param C forest carbon
 #' @param parms - as list with four values: r, K, g, closer
 #' @param r intrinsic growth rate 
-#' @param K carrying capacity (kgC)
+#' @param K carrying capacity (kg C)
 #' @param g linear growth rate after closer
 #' @param closer canopy closer (kg C)
 #' @return derivative of population with time 
