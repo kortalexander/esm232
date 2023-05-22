@@ -25,10 +25,15 @@ time <- 1:300
 
 # run ODE
 results <- ode(y = initial_C, times = time, func = dgrowth, parms = parms)
+colnames(results) = c("time", "C")
 results_df <- as.data.frame(results)
 
-# plot
-ggplot(results_df, aes(x = time, y = )) +
-  geom_line()
+# plot results
+ggplot(results_df, aes(x = time, y = C)) +
+  geom_line(size = 0.9, color = "darkgreen") +
+  labs(x = "Years", y = "Forest Size (kg C)") + 
+  theme_gray() + 
+  scale_x_continuous(limits=c(0,300), expand = c(0,0), breaks = seq(0,300, by = 50)) + 
+  scale_y_continuous(limits=c(0,200), expand = c(0,0), breaks = seq(0,200, by = 50))
 ```
 
