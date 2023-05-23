@@ -37,3 +37,42 @@ ggplot(results_df, aes(x = time, y = C)) +
   scale_y_continuous(limits=c(0,200), expand = c(0,0), breaks = seq(0,200, by = 50))
 ```
 
+# Sensitivity analysis
+
+```{r}
+# define parameter distributions and create samples for sobol object
+sd_prop = 0.1
+n_samp = 100
+
+r = rnorm(mean = 0.01, sd = sd_prop * 0.01, n = n_samp)
+closer = rnorm(mean = 50, sd = sd_prop * 50, n = n_samp)
+K = rnorm(mean = 250, sd = sd_prop * 250, n = n_samp)
+g = rnorm(mean = 2, sd = sd_prop * 2, n = n_samp)
+X1 = cbind.data.frame(r=r, closer=closer, K=K, g=g)
+
+r = rnorm(mean = 0.01, sd = sd_prop * 0.01, n = n_samp)
+closer = rnorm(mean = 50, sd = sd_prop * 50, n = n_samp)
+K = rnorm(mean = 250, sd = sd_prop * 250, n = n_samp)
+g = rnorm(mean = 2, sd = sd_prop * 2, n = n_samp)
+X2 = cbind.data.frame(r=r, closer=closer, K=K, g=g)
+
+# create sobol object
+sens_forest = sobolSalt(model = NULL,X1, X2, nboot = 300)
+colnames(sens_forest$X) = c("r", "closer", "K", "g")
+
+# define wrapper function to call ode and return carbon time series
+wrapper = function(r, closer, K, g, Cinitial, times, func) {
+  parms = list(r=r, closer=closer, K=K, g=g)
+  result = ode(y=Cinitial, times=times, func=func, parms=parms)
+  colnames(result) = c("time", "C")
+  max_C = max(result$C)
+  return(max_C)
+}
+
+times = 1:300
+Cinitial = 10
+allresults = as.data.frame(sens_forest$X) %>% pmap(wrapper, Cinitial = Cinitial, times = times, func = dgrowth)
+
+```
+
+
