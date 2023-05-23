@@ -64,15 +64,34 @@ colnames(sens_forest$X) = c("r", "closer", "K", "g")
 wrapper = function(r, closer, K, g, Cinitial, times, func) {
   parms = list(r=r, closer=closer, K=K, g=g)
   result = ode(y=Cinitial, times=times, func=func, parms=parms)
+  result=as.data.frame(result)
   colnames(result) = c("time", "C")
   max_C = max(result$C)
-  return(max_C)
+  return(list(max_C = max_C))
 }
 
+# set initial C and time and run wrapper function over our sobol object
 times = 1:300
 Cinitial = 10
 allresults = as.data.frame(sens_forest$X) %>% pmap(wrapper, Cinitial = Cinitial, times = times, func = dgrowth)
 
+# extract results into data frame
+allres = allresults %>% map_dfr(`[`,c("max_C"))
+
+# plot boxplot
+ggplot(allres, aes(y = max_C)) +
+  geom_boxplot(size = 0.9, color = "darkgreen") +
+  labs(y = "Maximum carbon after 300 years") +
+  theme_gray() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+# get sobol indices
+sens_forest_maxC = tell(sens_forest, allres$max_C)
+rownames(sens_forest_maxC$T) = c("r", "closer", "K", "g")
+sens_forest_maxC$T
+rownames(sens_forest_maxC$S) = c("r", "closer", "K", "g")
+sens_forest_maxC$S
+
 ```
 
-
+Our results show that variability in g, K, and r have the greatest effect on variability in maximum forest size after 300 years. Climate change may influence g and r, the exponential and linear forest growth rates. Greater temperature and atmospheric carbon concentration will influence these growth rates depending on the forest species and location/current climate. For instance, some areas may see an initial increase in their g and r, until they reach a threshold where temperature or atmospheric carbon concentration impede on the forest growth rates.
