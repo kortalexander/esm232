@@ -2,17 +2,26 @@
 title: "Assignment 6"
 author: "Kort Alexander and Alia Ajina"
 date: "2023-05-18"
-output: html_document
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    theme: journal
+    code_folding: show
+    smooth_scroll: yes
+    collapsed: yes
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, messages = FALSE, warnings = FALSE)
 
 library(tidyverse)
 library(here)
 library(sensitivity)
 library(deSolve)
 ```
+
+## Running our ODE function and graphing results
 
 ```{r}
 # source function
@@ -37,7 +46,7 @@ ggplot(results_df, aes(x = time, y = C)) +
   scale_y_continuous(limits=c(0,200), expand = c(0,0), breaks = seq(0,200, by = 50))
 ```
 
-# Sensitivity analysis
+## Sensitivity analysis
 
 ```{r}
 # define parameter distributions and create samples for sobol object
@@ -93,5 +102,7 @@ rownames(sens_forest_maxC$S) = c("r", "closer", "K", "g")
 sens_forest_maxC$S
 
 ```
+
+## Discussion
 
 Our results show that variability in g, K, and r have the greatest effect on variability in maximum forest size after 300 years. Climate change may influence g and r, the exponential and linear forest growth rates. Greater temperature and atmospheric carbon concentration will influence these growth rates depending on the forest species and location/current climate. For instance, some areas may see an initial increase in their g and r, until they reach a threshold where temperature or atmospheric carbon concentration impede on the forest growth rates.
