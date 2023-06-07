@@ -38,13 +38,18 @@ p1
 ```
 
 ```{r}
-# test function with hunting
-pars = c(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted=15, min_pop = 20)
-res_w_hunting = ode(func=lotv_w_hunting, y=currpop, times=days, parms=pars)
+lotv_wrapper = function(currpop, days, rprey, alpha, eff, pmort, K, hunted, min_pop) {
+  parms = list(rprey=rprey, alpha=alpha, eff=eff, pmort=pmort, K=K, hunted=hunted, min_pop=min_pop)
+  result = ode(y=currpop, times=days, func=lotv_w_hunting, parms=parms) 
+  colnames(result)=c("time","prey","pred")
+  return(result)
+}
 
-res2l = as.data.frame(res_w_hunting) %>% pivot_longer(-time, names_to="animal", values_to="pop")
-p2=ggplot(res2l, aes(time, pop, col=animal))+geom_line()
-p2
+# run function with hunting
+pars = list(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted = seq(from=100, to=300, by=10), min_pop = 460)
+all_res = as.data.frame(pars) %>% pmap(lotv_wrapper, currpop = currpop, days = days)
+
+
 ```
 
 
