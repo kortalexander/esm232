@@ -8,13 +8,11 @@
 #'  \emph{eff} is the rate of ingestion of prey by predators
 #'  \emph{alpha} is a interaction coefficient (higher values greater interaction
 #'  \emph{pmort}  mortality rate of predictor population
+#'  \emph{hunted} is the number of prey that are hunted
+#'  \emph{min_pop} is the minimum number of prey necessary to allow hunting
 #' @examples
 #' lotvod(t=1, pop=list(1,2), pop=list(0.5,0.3,0.2,0.2))
 #'
-#' pars = c(rprey=0.5, alpha=0.3, eff=0.2, pmort=0.2)
-#' currpop  = c(prey = 1, pred=1)
-#  days = seq(from=1,to=20)
-#' res = ode(func=lotvmod, y=currpop, times=days, parms=pars)
 #'
 #' @return  lotvmod returns a list containing the following components
 #' \describe{
@@ -22,9 +20,12 @@
 #' \item{dpred}{rate of change of preditor populutation}
 #'}
 
-lotvmodK = function(t, pop, pars) {
+lotv_w_hunting = function(t, pop, pars) {
   with(as.list(c(pars,pop)), {
     dprey = rprey*(1-prey/K)*prey -  alpha*prey*pred
     dpred = eff*alpha*prey*pred - pmort*pred
+    if(prey + dprey > min_pop){
+      dprey = dprey - hunted
+    }
     return(list(c(dprey,dpred)))})
 }
