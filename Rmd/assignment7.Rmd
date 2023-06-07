@@ -10,5 +10,41 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(here)
+library(deSolve)
+library(ggpubr)
 ```
+
+```{r}
+source(here("R", "lotv_w_hunting.R"))
+
+# test function without hunting
+
+# initial conditions
+currpop = c(prey=100, pred=10)
+
+# time points to see results
+days = seq(from=1, to=100, by=1)
+
+# set parameters
+pars = c(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted=0, min_pop = 0.5)
+
+# run the model
+res = ode(func=lotv_w_hunting, y=currpop, times=days, parms=pars)
+
+# visualize results
+resl = as.data.frame(res) %>% pivot_longer(-time, names_to="animal", values_to="pop")
+p1=ggplot(resl, aes(time, pop, col=animal))+geom_line()
+p1
+```
+
+```{r}
+# test function with hunting
+pars = c(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted=15, min_pop = 20)
+res_w_hunting = ode(func=lotv_w_hunting, y=currpop, times=days, parms=pars)
+
+res2l = as.data.frame(res_w_hunting) %>% pivot_longer(-time, names_to="animal", values_to="pop")
+p2=ggplot(res2l, aes(time, pop, col=animal))+geom_line()
+p2
+```
+
 
