@@ -23,7 +23,7 @@ source(here("R", "lotv_w_hunting.R"))
 currpop = c(prey=100, pred=10)
 
 # time points to see results
-days = seq(from=1, to=100, by=1)
+days = seq(from=1, to=200, by=1)
 
 # set parameters
 pars = c(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted=0, min_pop = 0.5)
@@ -40,16 +40,22 @@ p1
 ```{r}
 lotv_wrapper = function(currpop, days, rprey, alpha, eff, pmort, K, hunted, min_pop) {
   parms = list(rprey=rprey, alpha=alpha, eff=eff, pmort=pmort, K=K, hunted=hunted, min_pop=min_pop)
-  result = ode(y=currpop, times=days, func=lotv_w_hunting, parms=parms) 
+  result = ode(y=currpop, times=days, func=lotv_w_hunting, parms=parms)
   colnames(result)=c("time","prey","pred")
-  return(result)
+  result_df = as.data.frame(result)
+  if(result_df[length(result_df$time), 2] > 50)
+    stable = TRUE
+  else
+    stable = FALSE
+  return(stable)
 }
 
 # run function with hunting
-pars = list(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted = seq(from=100, to=300, by=10), min_pop = 460)
+pars = list(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted = seq(from=100, to=300, by=10), min_pop = 300)
 all_res = as.data.frame(pars) %>% pmap(lotv_wrapper, currpop = currpop, days = days)
-
-
 ```
+
+We defined a prey population as stable if it remains above x number after 200 days.
+
 
 
