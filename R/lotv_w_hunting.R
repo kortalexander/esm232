@@ -22,10 +22,10 @@
 
 lotv_w_hunting = function(t, pop, pars) {
   with(as.list(c(pars,pop)), {
-    dprey = rprey*(1-prey/K)*prey -  alpha*prey*pred
+    if(prey > min_pop)
+      dprey = (rprey*(1-prey/K)*prey -  alpha*prey*pred) - hunted_prop*prey
+    else
+      dprey = (rprey*(1-prey/K)*prey -  alpha*prey*pred)
     dpred = eff*alpha*prey*pred - pmort*pred
-    if(prey + dprey > min_pop){
-      dprey = dprey - hunted
-    }
     return(list(c(dprey,dpred)))})
 }

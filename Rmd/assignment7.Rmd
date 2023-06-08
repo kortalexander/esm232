@@ -2,7 +2,14 @@
 title: "Assignment 7"
 author: "Kort Alexander and Alia Ajina"
 date: "2023-05-30"
-output: html_document
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    theme: journal
+    code_folding: show
+    smooth_scroll: yes
+    collapsed: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -14,36 +21,58 @@ library(deSolve)
 library(ggpubr)
 ```
 
+## Testing function without hunting
+
 ```{r}
 source(here("R", "lotv_w_hunting.R"))
 
-# test function without hunting
+# Test function without hunting
 
-# initial conditions
+# Initial conditions
 currpop = c(prey=100, pred=10)
 
-# time points to see results
+# Time points to see results
 days = seq(from=1, to=200, by=1)
 
-# set parameters
-pars = c(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted=0, min_pop = 0.5)
+# Set parameters
+pars = c(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted_prop=0, min_pop = 1000)
 
-# run the model
+# Run the model
 res = ode(func=lotv_w_hunting, y=currpop, times=days, parms=pars)
 
-# visualize results
+# Visualize results
 resl = as.data.frame(res) %>% pivot_longer(-time, names_to="animal", values_to="pop")
-p1=ggplot(resl, aes(time, pop, col=animal))+geom_line()
+p1=ggplot(resl, aes(time, pop, col=animal))+ geom_line() + 
+  labs(x = "Time (days)", y = "Species Population")
 p1
 ```
 
+## Testing with set parameters
+
 ```{r}
-lotv_wrapper = function(currpop, days, rprey, alpha, eff, pmort, K, hunted, min_pop) {
-  parms = list(rprey=rprey, alpha=alpha, eff=eff, pmort=pmort, K=K, hunted=hunted, min_pop=min_pop)
+
+# Set parameters
+pars = c(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted_prop=0.1, min_pop = 100)
+
+# Run the model
+res = ode(func=lotv_w_hunting, y=currpop, times=days, parms=pars)
+
+# Visualize results
+resl = as.data.frame(res) %>% pivot_longer(-time, names_to="animal", values_to="pop")
+p1=ggplot(resl, aes(time, pop, col=animal))+ geom_line() + labs(x = "Time (days)", y = "Species Population")
+p1
+```
+
+## Comparing our stability metric
+
+```{r}
+# Creating our wrapper function
+lotv_wrapper = function(currpop, days, rprey, alpha, eff, pmort, K, hunted_prop, min_pop) {
+  parms = list(rprey=rprey, alpha=alpha, eff=eff, pmort=pmort, K=K, hunted_prop=hunted_prop, min_pop=min_pop)
   result = ode(y=currpop, times=days, func=lotv_w_hunting, parms=parms)
   colnames(result)=c("time","prey","pred")
   result_df = as.data.frame(result)
-  if(result_df[length(result_df$time), 2] > 50)
+  if(result_df[length(result_df$time), 2] > 65)
     stable = TRUE
   else
     stable = FALSE
@@ -51,11 +80,17 @@ lotv_wrapper = function(currpop, days, rprey, alpha, eff, pmort, K, hunted, min_
 }
 
 # run function with hunting
-pars = list(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted = seq(from=100, to=300, by=10), min_pop = 300)
+hunted_prop <- seq(from = 0, to = 0.1, by = 0.025)
+pars = list(rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000, hunted_prop = hunted_prop, min_pop = 100)
 all_res = as.data.frame(pars) %>% pmap(lotv_wrapper, currpop = currpop, days = days)
+
+# printing our data
+data.frame(hunting = hunted_prop, stable = unlist(all_res))
 ```
+## Defining our stability
 
-We defined a prey population as stable if it remains above x number after 200 days.
+Definition of stability: We defined a prey population as stable if it remains above 65 after 200 days. This may appear to be an arbitrary number, but this is the value where hunting leads to an unstable population, and no hunting leads to a stable population.
 
+## Conclusions
 
-
+For this species population, hunting permits will not be aloud. Due to the small population numbers, and it's vulnerability to hunting, if hunting permits were allotted, the population would dip below it's stability metric, and no longer be stable.
